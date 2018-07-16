@@ -38,8 +38,8 @@ public class Controller implements Initializable {
     private static boolean isStoped = false;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS");
 
-    private static int gijuSkaitliukas = 0; // nepraleidžia naujo
-    private static boolean nutrauktiSkaiciavimus = false; // sustabdo seną
+    private static int gijuSkaitliukas = 0;
+    private static boolean nutrauktiSkaiciavimus = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -48,19 +48,11 @@ public class Controller implements Initializable {
 
     // [Pradėti] mygtukas
     public void pradeti() {
-        System.out.println(nutrauktiSkaiciavimus + " - " + gijuSkaitliukas + " po pradėti -----------------------------------------");
 
         gijuSkaitliukas++;
 
-        if (gijuSkaitliukas > 1) {
+        if (gijuSkaitliukas > 2) {
             nutrauktiSkaiciavimus = true;
-
-//            try {
-//                Thread.currentThread().sleep(500);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-
         }
 
         isStoped = false;
@@ -84,30 +76,23 @@ public class Controller implements Initializable {
             return;
         }
 
+
+        // įrašų ir progress bar valdymo nustatymai
+        Task progressTask = pagrindinis(numberNuo, numberIki, numberZingsnis);
+        progresoJuostaProgressBar.progressProperty().unbind();
+        progresoJuostaProgressBar.progressProperty().bind(progressTask.progressProperty());
+        progressTask.messageProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                String m[] = newValue.split("---");
+                procentaiLabel.setText(m[0]);
+                pastabosLabel.setText(m[1]);
+            }
+        });
+
         // naujų gijų sukūrimas skaičiavimams
-        if (!nutrauktiSkaiciavimus) {
-
-            // įrašų ir progress bar valdymo nustatymai
-            Task progressTask = pagrindinis(numberNuo, numberIki, numberZingsnis);
-            progresoJuostaProgressBar.progressProperty().unbind();
-            progresoJuostaProgressBar.progressProperty().bind(progressTask.progressProperty());
-            progressTask.messageProperty().addListener(new ChangeListener<String>() {
-                @Override
-                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                    String m[] = newValue.split("---");
-                    procentaiLabel.setText(m[0]);
-                    pastabosLabel.setText(m[1]);
-                }
-            });
-
-            Thread gija = new Thread(progressTask);
-            gija.start();
-        } else {
-            return;
-        }
-
-
-        System.out.println(nutrauktiSkaiciavimus + " - " + gijuSkaitliukas + " po gija ***");
+        Thread gija = new Thread(progressTask);
+        gija.start();
     }
 
     public Task pagrindinis(int numberNuo, int numberIki, int numberZingsnis) {
@@ -126,7 +111,6 @@ public class Controller implements Initializable {
 
                     // skaičiavimų nutraukimas pradėjus naują skaičių skaidymą
                     if (nutrauktiSkaiciavimus) {
-                        System.out.println(nutrauktiSkaiciavimus + " - " + gijuSkaitliukas + " stop");
                         gijuSkaitliukas = 0;
                         nutrauktiSkaiciavimus = false;
                         Thread.currentThread().interrupt();
@@ -165,7 +149,6 @@ public class Controller implements Initializable {
                     // skaičiavimų nutraukimas pradėjus naują skaičių skaidymą
                     if (nutrauktiSkaiciavimus) {
                         irasaiTreeSet.removeLast(); // paskutinės eilutės išmetimas iš sąrašo, nes eilutė nebaigta kurti
-                        System.out.println(nutrauktiSkaiciavimus + " - " + gijuSkaitliukas + " stop");
                         gijuSkaitliukas = 0;
                         nutrauktiSkaiciavimus = false;
                         Thread.currentThread().interrupt();
@@ -199,7 +182,7 @@ public class Controller implements Initializable {
                     // veiksmai paspaudus button [Baigti]
                     if (isStoped) {
                         isStoped = false;
-                        System.out.println();
+                        WriteData.writeData(irasaiTreeSet);
                         break;
                     }
                 } // end for
@@ -209,13 +192,11 @@ public class Controller implements Initializable {
                 WriteData.writeData(irasaiTreeSet);
 
                 // kintamųjų apnulinimai pilnai užbaigus skaidymą
-                System.out.println(nutrauktiSkaiciavimus + " - " + gijuSkaitliukas + " pabaigoje prieš apnulinimą");
 
                 gijuSkaitliukas = 0;
                 nutrauktiSkaiciavimus = false;
 
                 return null;
-
             }
         };
     }
@@ -228,7 +209,6 @@ public class Controller implements Initializable {
         nutrauktiSkaiciavimus = false;
         WriteData.writeData(irasaiTreeSet);
         pastabosLabel.setText("Skaidymas baigtas. Rezultatai faile " + WriteData.FILE);
-        irasaiTreeSet.clear();
     }
 
 

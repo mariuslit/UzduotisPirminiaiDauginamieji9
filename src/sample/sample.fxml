@@ -23,7 +23,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <TextField fx:id="skaiciusNuoTextField" promptText="Įrašykite natūrinį skaičių" text="100000">
+            <TextField fx:id="skaiciusNuoTextField" promptText="Įrašykite natūrinį skaičių" text="100">
                <font>
                   <Font size="14.0" />
                </font>
@@ -40,7 +40,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <TextField fx:id="skaiciusIkiTextField" promptText="Įrašykite natūrinį skaičių" text="1200000">
+            <TextField fx:id="skaiciusIkiTextField" promptText="Įrašykite natūrinį skaičių" text="200">
                <font>
                   <Font size="14.0" />
                </font>
@@ -57,7 +57,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <TextField fx:id="zingsnisTextField" promptText="Įrašykite natūrinį skaičių" text="300007">
+            <TextField fx:id="zingsnisTextField" promptText="Įrašykite natūrinį skaičių" text="26">
                <font>
                   <Font size="14.0" />
                </font>
