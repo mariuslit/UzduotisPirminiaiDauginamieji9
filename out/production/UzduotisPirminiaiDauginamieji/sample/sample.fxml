@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <HBox alignment="CENTER" prefHeight="27.0" prefWidth="600.0" spacing="20.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </HBox>
+      <HBox alignment="CENTER" prefHeight="40.0" prefWidth="600.0" spacing="20.0">
+         <children>
+            <Label prefHeight="20.0" prefWidth="250.0" text="Nuo kurio skaičiaus pradėti skaičiuoti">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="skaiciusNuoTextField" promptText="Įrašykite natūrinį skaičių" text="100000">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </TextField>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="40.0" prefWidth="600.0" spacing="20.0">
+         <children>
+            <Label prefHeight="20.0" prefWidth="250.0" text="Iki kurio skaičiaus skaičiuoti">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="skaiciusIkiTextField" promptText="Įrašykite natūrinį skaičių" text="1200000">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </TextField>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="10.0" layoutY="50.0" prefHeight="40.0" prefWidth="600.0" spacing="20.0">
+         <children>
+            <Label prefHeight="20.0" prefWidth="250.0" text="Kas kiek didinti skaičių">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="zingsnisTextField" promptText="Įrašykite natūrinį skaičių" text="300007">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </TextField>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="10.0" layoutY="90.0" prefHeight="50.0" prefWidth="600.0" spacing="20.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <children>
+            <Label text="Progreso juosta" />
+            <Label fx:id="procentaiLabel" alignment="CENTER" prefHeight="17.0" prefWidth="37.0" text="0 %" />
+            <ProgressBar fx:id="progresoJuostaProgressBar" prefHeight="18.0" prefWidth="285.0" progress="0.0" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="10.0" layoutY="90.0" prefHeight="59.0" prefWidth="600.0" spacing="20.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <children>
+            <Button fx:id="buttonButton" mnemonicParsing="false" onAction="#pradeti" prefHeight="35.0" prefWidth="213.0" text="Pradėti" />
+            <Button layoutX="247.0" layoutY="18.0" mnemonicParsing="false" onAction="#baigti" prefHeight="35.0" prefWidth="213.0" text="Baigti" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="127.0" prefWidth="600.0" spacing="20.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <children>
+            <Label fx:id="pastabosLabel" alignment="TOP_LEFT" prefHeight="117.0" prefWidth="444.0" text="Pastabos" textFill="RED" wrapText="true" />
+         </children>
+      </HBox>
+   </children>
+</VBox>
