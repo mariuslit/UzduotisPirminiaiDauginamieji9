@@ -10,7 +10,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
-import org.omg.PortableServer.THREAD_POLICY_ID;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -33,13 +32,14 @@ public class Controller implements Initializable {
     private ProgressBar progresoJuostaProgressBar;
 
     private long MIN_PAUSE = 500; // užlaikymas milisekundėmis 0,5sec
-    static LinkedList<String> irasaiTreeSet = new LinkedList<>();
-    private static TreeSet<Integer> pirminiuSkaiciuKolekcijaTreeSet = new TreeSet<>(); // galima apsieti be static
-    private static boolean isStoped = false;
+    private String SPLITER = "---"; // eilutės skaldymo skyriklis
+    protected static LinkedList<String> irasaiTreeSet = new LinkedList<>();
+    private TreeSet<Integer> pirminiuSkaiciuKolekcijaTreeSet = new TreeSet<>(); // galima apsieti be static
+    private boolean isStoped = false;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS");
 
-    private static int gijuSkaitliukas = 0;
-    private static boolean nutrauktiSkaiciavimus = false;
+    private int gijuSkaitliukas = 0;
+    private boolean nutrauktiSkaiciavimus = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -49,10 +49,26 @@ public class Controller implements Initializable {
     // [Pradėti] mygtukas
     public void pradeti() {
 
+        // kai: 0 skaičiavimas nevyksta, 1 skaičiuojama, 2 laukia eilėje, > 2 atmetama
         gijuSkaitliukas++;
 
+        // gijų skaičiaus apribojimas iki 2
         if (gijuSkaitliukas > 2) {
+            gijuSkaitliukas--;
+            return;
+        }
+
+        // antrosios gijos stabdymas iki kol bus nutraukti skaičiavimai
+        if (gijuSkaitliukas == 2) {
             nutrauktiSkaiciavimus = true;
+            while (nutrauktiSkaiciavimus) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            gijuSkaitliukas = 1;
         }
 
         isStoped = false;
@@ -66,6 +82,7 @@ public class Controller implements Initializable {
             pastabosLabel.setText("");
         } catch (NumberFormatException e) {
             pastabosLabel.setText("Įrašytas ne skaičius. Prašome pataisyti.");
+            gijuSkaitliukas = 0;
             return;
         }
         if (numberNuo < 2 || numberIki < numberNuo || numberZingsnis < 1) {
@@ -73,6 +90,7 @@ public class Controller implements Initializable {
                     "Pirmasis skaičius turi būti didesnis už vienetą.\n" +
                     "Antrasis skaičius turi būti didesnis arba lygus pirmajam.\n" +
                     "Trečiasis skaičius turi būti didesnis už nulį.");
+            gijuSkaitliukas = 0;
             return;
         }
 
@@ -84,7 +102,7 @@ public class Controller implements Initializable {
         progressTask.messageProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                String m[] = newValue.split("---");
+                String m[] = newValue.split(SPLITER);
                 procentaiLabel.setText(m[0]);
                 pastabosLabel.setText(m[1]);
             }
@@ -95,7 +113,7 @@ public class Controller implements Initializable {
         gija.start();
     }
 
-    public Task pagrindinis(int numberNuo, int numberIki, int numberZingsnis) {
+    private Task pagrindinis(int numberNuo, int numberIki, int numberZingsnis) {
         return new Task() {
             @Override
             public Object call() throws Exception {
@@ -111,10 +129,7 @@ public class Controller implements Initializable {
 
                     // skaičiavimų nutraukimas pradėjus naują skaičių skaidymą
                     if (nutrauktiSkaiciavimus) {
-                        gijuSkaitliukas = 0;
                         nutrauktiSkaiciavimus = false;
-                        Thread.currentThread().interrupt();
-
                         return null;
                     }
                 }
@@ -134,12 +149,14 @@ public class Controller implements Initializable {
                 // pagrindinis programos ciklas, skirtas eilučių sukūrimui ir įrašymui į TreeSet masyvą
                 for (int skaicius : skaidomiSkaiciaiTreeSet) {
 
+                    // naujos eilutės pradžios laikas
                     long laikasPries = System.currentTimeMillis();
 
                     // label įrašų sukūrimas, String eilutės struktūra:
                     // progreso juostos skaitinė reikšmė proc, "---" spliter, pastabos apie einamajį skaidomą skaičių
                     updateMessage(progress * 100 / skaidomiSkaiciaiTreeSet.size() + "  %" +
-                            "---" + "Skaidomas skaičius: " + skaicius);
+                            SPLITER + "Skaidomas skaičius: " + skaicius);
+                    // todo: pakeisti String eilutę su SPLITER į String masyvas[2]
 
                     // įrašo sudarymas ir priskyrimas masyvui
                     String irasas = dateFormat.format(laikasPries) + " " +
@@ -149,15 +166,13 @@ public class Controller implements Initializable {
                     // skaičiavimų nutraukimas pradėjus naują skaičių skaidymą
                     if (nutrauktiSkaiciavimus) {
                         irasaiTreeSet.removeLast(); // paskutinės eilutės išmetimas iš sąrašo, nes eilutė nebaigta kurti
-                        gijuSkaitliukas = 0;
                         nutrauktiSkaiciavimus = false;
-                        Thread.currentThread().interrupt();
                         return null;
                     }
 
-                    // laukia iki kol praeis 0.5 sec nuo skaičiavimo pradžios
-                    if (System.currentTimeMillis() - laikasPries < MIN_PAUSE && !nutrauktiSkaiciavimus) {
-                        Thread.sleep(MIN_PAUSE - (System.currentTimeMillis() - laikasPries));
+                    // pauzė
+                    while (System.currentTimeMillis() < laikasPries + MIN_PAUSE && !nutrauktiSkaiciavimus) {
+                        Thread.sleep(1);
                     }
 
                     // formato keitimas trečiajai ir likusioms eilutėms: [.] -> [:] tarp sec - millisec
@@ -176,7 +191,7 @@ public class Controller implements Initializable {
                     // reikalingas papildomas atnaujinimas paskutiniam veiksmui su įrašais
                     if (skaicius == skaidomiSkaiciaiTreeSet.last() || isStoped) {
                         updateMessage(progress * 100 / skaidomiSkaiciaiTreeSet.size() + "  %" +
-                                "---" + "Skaidymas baigtas. Rezultatai faile " + WriteData.FILE);
+                                SPLITER + "Skaidymas baigtas. Rezultatai faile " + WriteData.FILE);
                     }
 
                     // veiksmai paspaudus button [Baigti]
@@ -192,12 +207,11 @@ public class Controller implements Initializable {
                 WriteData.writeData(irasaiTreeSet);
 
                 // kintamųjų apnulinimai pilnai užbaigus skaidymą
-
                 gijuSkaitliukas = 0;
                 nutrauktiSkaiciavimus = false;
 
                 return null;
-            }
+            } //--------------------------------------
         };
     }
 
@@ -217,6 +231,8 @@ public class Controller implements Initializable {
 
         // programos inicializacijos metu pirminių skaičių sekai priskiriama 2
         papildytiPirminiuSkaiciuKolekcija(iki);
+        // todo: pirminių skaičių kolekciją papildyti tik esant būtinybei:
+        // todo: kai paimamams paskutinis pirminis skaičiaus kolekcijoje ir reikalingas sekantis
 
         int pirminis2 = 0; // skirtas išsinešti reikšmei už FOR ciklo ribų
 

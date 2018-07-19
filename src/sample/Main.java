@@ -7,8 +7,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import static sample.Controller.irasaiTreeSet;
-
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -23,7 +21,7 @@ public class Main extends Application {
     public void stop() throws Exception {
 
         // duomenų išsaugojimas išeinant iš programos
-        WriteData.writeData(irasaiTreeSet);
+        WriteData.writeData(Controller.irasaiTreeSet);
 
         Platform.exit();
         System.exit(0);
